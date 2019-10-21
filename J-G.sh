@@ -1,0 +1,83 @@
+#!/bin/bash
+
+action=$1
+
+START="start"
+RESTART="restart"
+STOP="stop"
+application="G&A"
+
+PROJECT_FOLDER=$(dirname "$0")
+
+echo "项目路径: $PROJECT_FOLDER"
+
+SOURCE_DIR="$PROJECT_FOLDER/src"
+
+function get_num()
+{
+    num=$(ps -ef | grep -w "./main" | grep -v grep | wc -l)
+    return $num
+}
+
+
+function base_start() {
+
+  echo "$application starting~~~~~~"
+  nohup $PROJECT_FOLDER/main &
+  sleep 3
+  rm -rf $PROJECT_FOLDER/nohup.out
+  echo "$application started!!!!!!"
+}
+
+function start()
+{
+  if [ -f $PROJECT_FOLDER ]; then
+      rm -rf "$PROJECT_FOLDER/main" && go build "$SOURCE_DIR/main.go"
+  fi
+  base_start
+}
+
+
+function stop()
+{
+  ps -ef | grep "./main" | grep -v grep | awk '{print $2}' | xargs kill -9
+
+  echo "$application is stopping~~~~~~"
+  sleep 2
+
+  get_num
+  num=$?
+  if [[ $num -eq 0 ]]; then
+    echo "$application stopped!!!!!!"
+  else
+    echo "$application stop failed"
+  fi
+
+}
+
+function restart()
+{
+  get_num
+  num=$?
+  echo "num: $num"
+  if [[ $num -gt 0 ]]; then
+    stop
+  fi
+  base_start
+}
+
+
+if [[ "$action" == "$START" ]]; then
+  start
+elif [[ "$action" == "$RESTART" ]]; then
+  restart
+elif [[ "$action" == "$STOP" ]]; then
+  rm -rf "$PROJECT_FOLDER/main"
+  stop
+fi
+
+
+
+
+
+

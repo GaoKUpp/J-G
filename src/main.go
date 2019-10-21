@@ -8,8 +8,10 @@ func main() {
 	r := gin.Default()
 	r.GET("/check-health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message": "success",
+			"code": 0,
+			"message": "",
+			"data": "success",
 		})
 	})
-	r.Run("127.0.0.1:8080")  // listen and serve on 0.0.0.0:8080
+	r.Run("127.0.0.1:9000")  // listen and serve on 0.0.0.0:8080
 }
