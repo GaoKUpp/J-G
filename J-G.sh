@@ -18,7 +18,15 @@ function get_num() {
   return $num
 }
 
-function base_start() {
+
+function start() {
+  if [[ -f $PROJECT_FOLDER ]]; then
+    rm -rf "$PROJECT_FOLDER/main"
+  fi
+
+  echo "编译中"
+  go build "$SOURCE_DIR/main.go"
+  echo "编译完成"
 
   echo "$application starting~~~~~~"
   nohup $PROJECT_FOLDER/main &
@@ -33,19 +41,11 @@ function base_start() {
     echo "$application started!!!!!!"
     rm -rf "$PROJECT_FOLDER/main"
   fi
-}
-
-function start() {
-  if [[ -f $PROJECT_FOLDER ]]; then
-    rm -rf "$PROJECT_FOLDER/main"
-  fi
-  echo "编译中"
-  go build "$SOURCE_DIR/main.go"
-  echo "编译完成"
-  base_start
+  
 }
 
 function stop() {
+  rm -rf "$PROJECT_FOLDER/main"
   ps -ef | grep "./main" | grep -v grep | awk '{print $2}' | xargs kill -9
 
   echo "$application is stopping~~~~~~"
@@ -68,7 +68,7 @@ function restart() {
   if [[ $num -gt 0 ]]; then
     stop
   fi
-  base_start
+  start
 }
 
 if [[ "$action" == "$START" ]]; then
@@ -76,6 +76,5 @@ if [[ "$action" == "$START" ]]; then
 elif [[ "$action" == "$RESTART" ]]; then
   restart
 elif [[ "$action" == "$STOP" ]]; then
-  rm -rf "$PROJECT_FOLDER/main"
   stop
 fi
