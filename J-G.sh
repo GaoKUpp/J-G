@@ -7,10 +7,7 @@ RESTART="restart"
 STOP="stop"
 application="G-A"
 
-PROJECT_FOLDER=$(
-  cd "$(dirname "$0")"
-  pwd
-)
+PROJECT_FOLDER=$(cd "$(dirname "$0")";pwd)
 
 echo "项目路径: $PROJECT_FOLDER"
 
@@ -34,11 +31,12 @@ function base_start() {
     echo "$application failed!!!!!!"
   else
     echo "$application started!!!!!!"
+    rm -rf "$PROJECT_FOLDER/main"
   fi
 }
 
 function start() {
-  if [ -f $PROJECT_FOLDER ]; then
+  if [[ -f $PROJECT_FOLDER ]]; then
     rm -rf "$PROJECT_FOLDER/main"
   fi
   echo "编译中"
