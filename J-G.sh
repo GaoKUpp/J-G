@@ -5,20 +5,21 @@ action=$1
 START="start"
 RESTART="restart"
 STOP="stop"
-application="G&A"
+application="G-A"
 
-PROJECT_FOLDER=$(dirname "$0")
+PROJECT_FOLDER=$(
+  cd "$(dirname "$0")"
+  pwd
+)
 
 echo "项目路径: $PROJECT_FOLDER"
 
 SOURCE_DIR="$PROJECT_FOLDER/src"
 
-function get_num()
-{
-    num=$(ps -ef | grep -w "./main" | grep -v grep | wc -l)
-    return $num
+function get_num() {
+  num=$(ps -ef | grep -w "./main" | grep -v grep | wc -l)
+  return $num
 }
-
 
 function base_start() {
 
@@ -26,20 +27,27 @@ function base_start() {
   nohup $PROJECT_FOLDER/main &
   sleep 3
   rm -rf $PROJECT_FOLDER/nohup.out
-  echo "$application started!!!!!!"
+  get_num
+  num=$?
+
+  if [[ num -eq 0 ]]; then
+    echo "$application failed!!!!!!"
+  else
+    echo "$application started!!!!!!"
+  fi
 }
 
-function start()
-{
+function start() {
   if [ -f $PROJECT_FOLDER ]; then
-      rm -rf "$PROJECT_FOLDER/main" && go build "$SOURCE_DIR/main.go"
+    rm -rf "$PROJECT_FOLDER/main"
   fi
+  echo "编译中"
+  go build "$SOURCE_DIR/main.go"
+  echo "编译完成"
   base_start
 }
 
-
-function stop()
-{
+function stop() {
   ps -ef | grep "./main" | grep -v grep | awk '{print $2}' | xargs kill -9
 
   echo "$application is stopping~~~~~~"
@@ -55,8 +63,7 @@ function stop()
 
 }
 
-function restart()
-{
+function restart() {
   get_num
   num=$?
   echo "num: $num"
@@ -66,7 +73,6 @@ function restart()
   base_start
 }
 
-
 if [[ "$action" == "$START" ]]; then
   start
 elif [[ "$action" == "$RESTART" ]]; then
@@ -75,9 +81,3 @@ elif [[ "$action" == "$STOP" ]]; then
   rm -rf "$PROJECT_FOLDER/main"
   stop
 fi
-
-
-
-
-
-
